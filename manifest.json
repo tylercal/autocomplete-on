@@ -2,7 +2,7 @@
   "manifest_version": 2,
 
   "name": "Autocomplete On!",
-  "description": "Stop pages from disabling autocomplete on fields. Try several times in case a page's scripts disable autocomplete. Set a whitelist for pages that you don't want autocomplete forced on, eg gmail which has its own autocomplete.",
+  "description": "Stop pages from disabling autocomplete on fields.",
   "version": "1.0.0",
   "offline_enabled": true,
 
