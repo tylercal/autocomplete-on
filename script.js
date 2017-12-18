@@ -39,4 +39,8 @@
     }
 
     run();
+
+    document.addEventListener('page:load', run);
+    document.addEventListener('ready', run);
+    document.addEventListener('turbolinks:load', run);
 })();
