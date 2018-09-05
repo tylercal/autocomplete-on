@@ -3,7 +3,7 @@
 
   "name": "Autocomplete On!",
   "description": "Stop pages from disabling autocomplete on fields.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "offline_enabled": true,
 
   "icons": {

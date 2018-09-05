@@ -26,10 +26,22 @@
 
     function run() {
         chrome.storage.sync.get({
-            blacklist: 'google.com'
+            blacklist: 'google.com',
+            whitelist: ''
         }, function(items) {
-            var patterns = items.blacklist.split("\n");
-            for (var i = 0; i < patterns.length; i++) {
+            var patterns = items.whitelist.split("\n");
+            var matchesWhitelist = items.whitelist === "";
+
+            for (var i = 0; !matchesWhitelist && i < patterns.length; i++) {
+                if (document.URL.indexOf(patterns[i]) > 0) {
+                    matchesWhitelist = true;
+                }
+            }
+
+            if (!matchesWhitelist) return;
+
+            patterns = items.blacklist.split("\n");
+            for (i = 0; i < patterns.length; i++) {
                 if (document.URL.indexOf(patterns[i]) > 0) {
                     return;
                 }

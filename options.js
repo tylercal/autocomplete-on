@@ -1,8 +1,10 @@
 // Saves options to chrome.storage.sync.
 function save_options() {
     var blacklist = document.getElementById('blacklist').value;
+    var whitelist = document.getElementById('whitelist').value;
     chrome.storage.sync.set({
-        blacklist: blacklist
+        blacklist: blacklist,
+        whitelist: whitelist
     }, function() {
         // Update status to let user know options were saved.
         var status = document.getElementById('status');
@@ -17,9 +19,11 @@ function save_options() {
 // stored in chrome.storage.
 function restore_options() {
     chrome.storage.sync.get({
-        blacklist: 'google.com'
+        blacklist: 'google.com',
+        whitelist: ''
     }, function(items) {
         document.getElementById('blacklist').value = items.blacklist;
+        document.getElementById('whitelist').value = items.whitelist;
     });
 }
 document.addEventListener('DOMContentLoaded', restore_options);
