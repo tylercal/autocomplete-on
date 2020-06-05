@@ -3,7 +3,17 @@
 (function() {
     "use strict";
 
-    var observer = new MutationObserver(function (mutations) {
+    let mutationCount = 0;
+
+    const loadObserver = new MutationObserver(function (mutations) {
+        mutationCount++;
+        mutations.forEach(function (m) {
+            completeOn();
+        });
+        if (mutationCount > 100) { loadObserver.disconnect(); }
+    });
+
+    const observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (m) {
             if (m.target.getAttribute("autocomplete") !== "on") {
                 m.target.setAttribute("autocomplete", "on");
@@ -11,17 +21,16 @@
         });
     });
 
-    var config = { attributes: true, attributeFilter: ["autocomplete"] };
+    const config = { attributes: true, attributeFilter: ["autocomplete"] };
 
     function completeOn() {
-        var inputs = document.querySelectorAll("[autocomplete]");
+        const inputs = document.querySelectorAll("[autocomplete]");
 
-        for (var i = 0; i < inputs.length; i++) {
-            var input = inputs[i];
+        for (let i = 0; i < inputs.length; i++) {
+            const input = inputs[i];
             input.setAttribute("autocomplete", "on");
             observer.observe(input, config);
         }
-        return {inputs: inputs, i: i, input: input};
     }
 
     function run() {
@@ -29,10 +38,10 @@
             blacklist: 'google.com',
             whitelist: ''
         }, function(items) {
-            var patterns = items.whitelist.split("\n");
-            var matchesWhitelist = items.whitelist === "";
+            let patterns = items.whitelist.split("\n");
+            let matchesWhitelist = items.whitelist === "";
 
-            for (var i = 0; !matchesWhitelist && i < patterns.length; i++) {
+            for (let i = 0; !matchesWhitelist && i < patterns.length; i++) {
                 if (document.URL.indexOf(patterns[i]) > 0) {
                     matchesWhitelist = true;
                 }
@@ -41,12 +50,14 @@
             if (!matchesWhitelist) return;
 
             patterns = items.blacklist.split("\n");
-            for (i = 0; i < patterns.length; i++) {
+            for (let i = 0; i < patterns.length; i++) {
                 if (document.URL.indexOf(patterns[i]) > 0) {
                     return;
                 }
             }
             completeOn();
+            loadObserver.observe(document.body,
+                {childList: true, subtree: true});
         });
     }
 
@@ -55,4 +66,5 @@
     document.addEventListener('page:load', run);
     document.addEventListener('ready', run);
     document.addEventListener('turbolinks:load', run);
+    window.addEventListener('load', run);
 })();
