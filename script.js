@@ -42,7 +42,7 @@
             let matchesWhitelist = items.whitelist === "";
 
             for (let i = 0; !matchesWhitelist && i < patterns.length; i++) {
-                if (document.URL.indexOf(patterns[i]) > 0) {
+                if (document.URL.indexOf(patterns[i]) >= 0) {
                     matchesWhitelist = true;
                 }
             }
@@ -51,7 +51,7 @@
 
             patterns = items.blacklist.split("\n");
             for (let i = 0; i < patterns.length; i++) {
-                if (document.URL.indexOf(patterns[i]) > 0) {
+                if (document.URL.indexOf(patterns[i]) >= 0) {
                     return;
                 }
             }
