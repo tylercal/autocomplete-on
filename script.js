@@ -58,10 +58,23 @@ const COMPLETES = new Set([
     "impp"
 ]);
 
+const querySelectorAll = (node, selector) => {
+    const nodes = [...node.querySelectorAll(selector)];
+    const nodeIterator = document.createNodeIterator(node, Node.ELEMENT_NODE);
+    let currentNode;
+    while ((currentNode = nodeIterator.nextNode())) {
+        if (currentNode.shadowRoot) {
+            nodes.push(...querySelectorAll(currentNode.shadowRoot, selector));
+        }
+    }
+    return nodes;
+};
+
 (function() {
     "use strict";
 
     let mutationCount = 0;
+    let allInputs = false;
 
     const loadObserver = new MutationObserver(function (mutations) {
         mutationCount++;
@@ -82,14 +95,18 @@ const COMPLETES = new Set([
             const hint = (input.name + input.id).toLowerCase()
             let value = "on"
             if (hint.includes("user")) value = "username"
-            if (hint.includes("email")) value = "email"
+            if (hint.includes("mail")) value = "email"
+            if (hint.includes("phone")) value = "tel"
+
+            console.log("Setting autocomplete to " + value + " for " + hint)
 
             input.setAttribute("autocomplete", value);
         }
     }
 
     function completeOn() {
-        const inputs = document.querySelectorAll("[autocomplete]");
+        const inputs = allInputs ?
+            querySelectorAll(document, "input") : querySelectorAll(document,"[autocomplete]");
 
         for (let i = 0; i < inputs.length; i++) {
             const input = inputs[i];
@@ -101,8 +118,10 @@ const COMPLETES = new Set([
     function run() {
         chrome.storage.sync.get({
             blacklist: 'google.com',
-            whitelist: ''
+            whitelist: '',
+            allInputs: false
         }, items => {
+            allInputs = items.allInputs;
             let patterns = items.whitelist.split("\n");
             let matchesIncludeList = items.whitelist === "";
 
