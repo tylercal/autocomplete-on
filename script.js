@@ -77,10 +77,19 @@ const querySelectorAll = (node, selector) => {
     let allInputs = false;
 
     const loadObserver = new MutationObserver(function (mutations) {
-        mutationCount++;
-        mutations.forEach(() => completeOn());
+        mutationCount ++
+        console.log("trigger count: " + mutationCount+", mutations: "+mutations.length)
+        debounce(completeOn)
         if (mutationCount > 100) { loadObserver.disconnect(); }
     });
+
+    function debounce(func, timeout = 500){
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => { func.apply(this, args); }, timeout);
+        };
+    }
 
     const observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (m) {
@@ -98,7 +107,7 @@ const querySelectorAll = (node, selector) => {
             if (hint.includes("mail")) value = "email"
             if (hint.includes("phone")) value = "tel"
 
-            console.log("Setting autocomplete to " + value + " for " + hint)
+            console.log("Setting autocomplete to " + value + " for " + hint, input)
 
             input.setAttribute("autocomplete", value);
         }
@@ -106,8 +115,8 @@ const querySelectorAll = (node, selector) => {
 
     function completeOn() {
         const inputs = allInputs ?
-            querySelectorAll(document, "input") : querySelectorAll(document,"[autocomplete]");
-
+            querySelectorAll(document, "input:not([type=hidden])") : querySelectorAll(document,"[autocomplete]:not([type=hidden])");
+        console.log(inputs)
         for (let i = 0; i < inputs.length; i++) {
             const input = inputs[i];
             chooseComplete(input);
@@ -139,7 +148,8 @@ const querySelectorAll = (node, selector) => {
                     return;
                 }
             }
-            completeOn();
+            console.log("Running autocomplete")
+            completeOn()
             loadObserver.observe(document.body,
                 {childList: true, subtree: true});
         });
