@@ -58,6 +58,12 @@ const COMPLETES = new Set([
     "impp"
 ]);
 
+const log = (...args) => {
+    if (!('update_url' in chrome.runtime.getManifest())) {
+        console.log(...args)
+    }
+}
+
 const querySelectorAll = (node, selector) => {
     const nodes = [...node.querySelectorAll(selector)];
     const nodeIterator = document.createNodeIterator(node, Node.ELEMENT_NODE);
@@ -78,15 +84,17 @@ const querySelectorAll = (node, selector) => {
 
     const loadObserver = new MutationObserver(function (mutations) {
         mutationCount ++
-        debounce(completeOn)
-        if (mutationCount > 100) { loadObserver.disconnect(); }
+        debounce(completeOn)()
+        if (mutationCount > 100) { loadObserver.disconnect(); log("Disconnecting observer")}
     });
 
-    function debounce(func, timeout = 500){
-        let timer;
+    function debounce(callback, wait=500) {
+        let timeoutId = null;
         return (...args) => {
-            clearTimeout(timer);
-            timer = setTimeout(() => { func.apply(this, args); }, timeout);
+            window.clearTimeout(timeoutId);
+            timeoutId = window.setTimeout(() => {
+                callback(...args);
+            }, wait);
         };
     }
 
@@ -107,12 +115,13 @@ const querySelectorAll = (node, selector) => {
             if (hint.includes("phone")) value = "tel"
 
             input.setAttribute("autocomplete", value);
+            log("Setting autocomplete to "+value)
         }
     }
 
     function completeOn() {
         const inputs = allInputs ?
-            querySelectorAll(document, "input:not([type=hidden])") : querySelectorAll(document,"[autocomplete]:not([type=hidden])");
+            querySelectorAll(document, "input:not([type=hidden]),form") : querySelectorAll(document,"[autocomplete]:not([type=hidden])");
         for (let i = 0; i < inputs.length; i++) {
             const input = inputs[i];
             chooseComplete(input);
